@@ -2,33 +2,30 @@ require('dotenv').config();
 
 const express = require('express');
 const app = express();
+
 app.use(express.json());
 
-// 🟢 DB Test
-const pool = require('./db');
+// LOG REQUESTS
+app.use((req, res, next) => {
+  console.log(`➡️ ${req.method} ${req.url}`);
+  next();
+});
 
-pool.query('SELECT * FROM taxes')
-  .then(res => console.log('DB OK:', res.rows))
-  .catch(err => console.error('DB ERROR:', err.message));
-
-// 🟢 Routes
-const userRoutes = require('./routes/userRoutes');
-const taxRoutes = require('./routes/taxRoutes');
-const productRoutes = require('./routes/productRoutes'); // 👈 أضفنا هذا
-
-// 🟢 Test route
+// ROOT
 app.get('/', (req, res) => {
   res.send('API Working ✅');
 });
 
-// 🟢 Use routes
-app.use('/users', userRoutes);
-app.use('/taxes', taxRoutes);
-app.use('/products', productRoutes); // 👈 أضفنا هذا
+// ROUTES
+const invoiceRoutes = require('./routes/invoiceRoutes');
+app.use('/invoices', invoiceRoutes);
 
-// 🟢 Start server
-const PORT = process.env.PORT || 3000;
+// 404
+app.use((req, res) => {
+  res.status(404).send('Not Found ❌');
+});
 
-app.listen(PORT, () => {
-  console.log('🔥 SERVER RUNNING ON PORT ' + PORT);
+// START SERVER
+app.listen(3000, () => {
+  console.log('🔥 SERVER RUNNING ON PORT 3000');
 });
